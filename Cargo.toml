@@ -3,11 +3,17 @@ name = "file_search"
 version = "0.1.0"
 edition = "2021"
 
+
+#[[bin]]
+#name = "test"
+#path = "src/test.rs"
+
+
 [[bin]]
 name = "search"
 path = "src/search.rs"
 
-
+#
 #[[bin]]
 #name = "setup"
 #path = "src/setup.rs"
