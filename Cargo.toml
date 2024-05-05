@@ -13,7 +13,7 @@ edition = "2021"
 name = "search"
 path = "src/search.rs"
 
-#
+
 #[[bin]]
 #name = "setup"
 #path = "src/setup.rs"
@@ -21,3 +21,4 @@ path = "src/search.rs"
 [dependencies]
 rusqlite = "0.28"
 walkdir = "2.5.0"
+clap = "3.2"

@@ -1,3 +1,5 @@
+mod update;
+
 use rusqlite::{params, Connection};
 use std::env;
 use std::path::Path;
@@ -8,18 +10,19 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let filename: &str = args.get(1).unwrap();
 
-    // for arg in &args{
-    //     println!("{}", arg);
-    // }
-    // println!();
-
+    for arg in &args{
+        println!("{}", arg);
+    }
+    println!();
+    let start = Instant::now();
     match args.get(2) {
         Some(p) => println!("path detected: {}/{}", p, filename) /*search_w_path(&filename, p)*/,
         None => search_wo_path(&filename),
     }
     let duration = start.elapsed();
+
+    println!("{:?}", duration);
     println!("Search done.");
-    println!("Time taken: {:?}", duration);
 }
 
 fn search_wo_path(filename: &str) {
