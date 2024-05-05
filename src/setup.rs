@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 use walkdir::{DirEntry, WalkDir};
 
-//run with superuser permissions
+
 #[derive(PartialEq)]
 enum SetupKind {
     Default,
@@ -13,6 +13,7 @@ enum SetupKind {
     Maximal,
 }
 
+//run with superuser permissions
 fn main() {
     let mut setup_mode: SetupKind = SetupKind::Minimal;
     let mut include_dirs: Vec<&str> = Vec::new();
