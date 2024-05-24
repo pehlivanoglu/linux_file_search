@@ -14,11 +14,21 @@ name = "search"
 path = "src/search.rs"
 
 
-#[[bin]]
-#name = "setup"
-#path = "src/setup.rs"
+[[bin]]
+name = "setup"
+path = "src/setup.rs"
+
+
+[[bin]]
+name = "update"
+path = "src/update.rs"
+
+[lib]
+name = "Utils"
+path = "src/Utils.rs"
 
 [dependencies]
 rusqlite = "0.28"
 walkdir = "2.5.0"
 clap = "3.2"
+dirs = "5.0.1"
