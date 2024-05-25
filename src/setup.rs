@@ -57,16 +57,13 @@ fn main() {
     };
     println!("Setup mode: {}", app.value_of("setup_mode").unwrap());
 
+    create_config_file(&setup_mode, include_dirs.iter().map(|s| s.to_string()).collect(), add_hidden_flag);
+
+    delete_lib_dir();
     create_lib_dir();
     create_dbs();
 
-    if setup_mode == SetupKind::Default {
-        // println!("default");
-        populate_db(setup_mode, include_dirs, add_hidden_flag);
-    } else {
-        // println!("other");
-        populate_db(setup_mode, include_dirs, add_hidden_flag);
-    }
+    populate_db(setup_mode, include_dirs, add_hidden_flag);
 
     create_index_on_tables();
     println!("Database setup is complete!");

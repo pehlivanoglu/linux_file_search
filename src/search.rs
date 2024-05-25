@@ -2,7 +2,6 @@ mod update;
 
 use rusqlite::{params, Connection};
 use std::env;
-use std::path::Path;
 use std::time::Instant;
 
 fn main() {

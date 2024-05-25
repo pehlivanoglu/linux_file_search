@@ -1,9 +1,14 @@
 use std::fs::{self, File};
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{BufRead, BufReader, Write};
 use dirs::home_dir;
 use rusqlite::{params, Connection};
 use std::path::Path;
 use walkdir::{DirEntry, WalkDir};
+use std::env;
+use std::path::PathBuf;
+use users::{get_user_by_name, User};
+use dirs;
+use users::os::unix::UserExt;
 
 #[derive(PartialEq)]
 pub enum SetupKind {
@@ -13,11 +18,12 @@ pub enum SetupKind {
     Maximal,
 }
 
-pub static MINIMAL_DIRS: Vec<&str> = vec!["/home", "/bin", "/usr", "/root"];
-pub static EXCLUDED_MAXIMAL_DIRS: Vec<&str> = vec!["/proc", "/run", "/lost+found", "/tmp", "/dev"];
-pub static STANDARD_DIRS: Vec<&str> = vec![
+pub static MINIMAL_DIRS: &'static [&'static str] = &["/home", "/bin", "/usr", "/root"];
+pub static EXCLUDED_MAXIMAL_DIRS: &'static [&'static str] = &["/proc", "/run", "/lost+found", "/tmp", "/dev"];
+pub static STANDARD_DIRS: &'static [&'static str] = &[
     "/home", "/bin", "/usr", "/var", "/cdrom", "/etc", "/media", "/sbin", "/srv", "/root",
 ];
+
 
 pub fn create_index_on_tables() {
     for c in 'a'..='z' {
@@ -85,9 +91,9 @@ pub fn populate_db(setup_mode: SetupKind, mut include_dirs: Vec<&str>, add_hidde
     let mut count: i128 = 0;
 
     include_dirs = match setup_mode {
-        SetupKind::Minimal => MINIMAL_DIRS.clone(),
-        SetupKind::Standard => STANDARD_DIRS.clone(),
-        SetupKind::Maximal => EXCLUDED_MAXIMAL_DIRS.clone(),
+        SetupKind::Minimal => MINIMAL_DIRS.to_vec(),
+        SetupKind::Standard => STANDARD_DIRS.to_vec(),
+        SetupKind::Maximal => EXCLUDED_MAXIMAL_DIRS.to_vec(),
         SetupKind::Default => include_dirs,
     };
 
@@ -168,10 +174,20 @@ pub fn create_lib_dir() {
         println!("Directory {} already exists!", dir_path);
     }
 }
+pub fn delete_lib_dir() {
+    let dir_path = "/var/lib/file_search";
+    if Path::new(dir_path).exists() {
+        match fs::remove_dir_all(dir_path) {
+            Ok(_) => println!("Directory {} successfully deleted!", dir_path),
+            Err(err_msg) => panic!("Directory could not be deleted due to: {}", err_msg),
+        }
+    } else {
+        println!("Directory {} does not exist!", dir_path);
+    }
+}
+pub fn read_config_file() -> (Vec<String>, SetupKind, bool) {
 
-pub fn read_config_file() -> (Option<Vec<String>>, SetupKind, bool) {
-
-    let mut config_path = home_dir().expect("Could not get home directory");
+    let mut config_path = get_home_dir();
     config_path.push(".config/file_search/config.toml");
 
     let config_file = match File::open(&config_path) {
@@ -210,10 +226,9 @@ pub fn read_config_file() -> (Option<Vec<String>>, SetupKind, bool) {
         include_dirs.push(line.unwrap().clone());
     }
 
-    (Some(include_dirs), setup_mode, add_hidden_flag)
+    (include_dirs, setup_mode, add_hidden_flag)
 }
-
-pub fn create_config_file(setup_mode: SetupKind, default_params: Option<Vec<String>>) {
+pub fn create_config_file(setup_mode: &SetupKind, default_params: Vec<String>, add_hidden_flag: bool) {
     let config_str = match setup_mode {
         SetupKind::Standard => "standard",
         SetupKind::Minimal => "minimal",
@@ -221,7 +236,8 @@ pub fn create_config_file(setup_mode: SetupKind, default_params: Option<Vec<Stri
         SetupKind::Default => "default"
     };
 
-    let mut config_path = home_dir().expect("Could not get home directory");
+    let mut config_path = get_home_dir();
+
     config_path.push(".config/file_search");
 
     if let Err(err) = fs::create_dir_all(&config_path) {
@@ -239,10 +255,19 @@ pub fn create_config_file(setup_mode: SetupKind, default_params: Option<Vec<Stri
         panic!("Could not write to config file due to: {}", err);
     }
 
-    match default_params {
-        Some(params) => for dir in params{
-            config_file.write_all(format!("\n{}",dir).as_bytes()).expect("");
-        },
-        None => ()
+    match add_hidden_flag {
+        true => config_file.write_all("\ntrue".as_bytes()).expect(""),
+        false => config_file.write_all("\nfalse".as_bytes()).expect("")
     }
+    for dir in default_params{
+        config_file.write_all(format!("\n{}",dir).as_bytes()).expect("");
+    }
+}
+fn get_home_dir() -> PathBuf {
+    if let Ok(sudo_user) = env::var("SUDO_USER") {
+        if let Some(user_info) = get_user_by_name(&sudo_user) {
+            return PathBuf::from(user_info.home_dir());
+        }
+    }
+    dirs::home_dir().expect("Could not find home directory")
 }
