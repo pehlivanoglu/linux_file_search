@@ -207,20 +207,23 @@ pub fn read_config_file() -> (Vec<String>, SetupKind, bool) {
     reader.read_line(&mut add_hidden_str).unwrap();
     add_hidden_str = add_hidden_str.trim().to_string();
 
-    let add_hidden_flag = match add_hidden_str.as_str() {
-        "true" | "yes" | "1" => true,
-        "false" | "no" | "0" => false,
-        _ => true
-    };
+    // let add_hidden_flag = match add_hidden_str.as_str() {
+    //     "true" | "yes" | "1" => true,
+    //     "false" | "no" | "0" => false,
+    //     _ => true
+    // };
 
 
-    let setup_mode = match setup_mode_str.as_str() {
-        "standard" => SetupKind::Standard,
-        "minimal" => SetupKind::Minimal,
-        "maximal" => SetupKind::Maximal,
-        "default" => SetupKind::Default,
-        _ => panic!("Wrong config option")
-    };
+    // let setup_mode = match setup_mode_str.as_str() {
+    //     "standard" => SetupKind::Standard,
+    //     "minimal" => SetupKind::Minimal,
+    //     "maximal" => SetupKind::Maximal,
+    //     "default" => SetupKind::Default,
+    //     _ => panic!("Wrong config option: {}",setup_mode_str.as_str())
+    // };
+    // println!("{}",setup_mode_str.as_str());
+    let setup_mode: SetupKind = SetupKind::Default;
+    let add_hidden_flag: bool = false;
 
     for line in reader.lines() {
         include_dirs.push(line.unwrap().clone());

@@ -11,3 +11,8 @@ lots of files created and removed in a small amount of time in Linux. Will solve
 use file system monitoring tools (like inotify on Linux)
 
 deamonize the update rs - reindexing periodically
+
+## generated files:
+daemon files at /tmp
+config file at ~/.config
+db files at /var/lib/file_search/
