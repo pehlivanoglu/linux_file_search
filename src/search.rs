@@ -2,6 +2,7 @@ mod update;
 
 use rusqlite::{params, Connection};
 use std::env;
+use std::path::Path;
 use std::time::Instant;
 
 fn main() {
@@ -19,10 +20,6 @@ fn main() {
 }
 
 fn search_wo_path(filename: &str) {
-    // if !is_file(&filename) {
-    //     panic!("{} is not a file!", &filename);
-    // }
-
     let connection: Connection = open_sql_connection(filename);
 
     let sql_query: &str = "SELECT path, filename FROM files WHERE filename = ?1";
@@ -58,12 +55,5 @@ fn open_sql_connection(filename: &str) -> Connection {
     match opt_conn {
         Ok(c) => return c,
         Err(err) => panic!("{}", err),
-    }
-}
-
-fn is_file(s: &str) -> bool {
-    match s.rfind('.') {
-        Some(index) => index + 1 < s.len(),
-        None => false,
     }
 }
