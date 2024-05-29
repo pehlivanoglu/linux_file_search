@@ -2,6 +2,7 @@ use clap::{App, Arg};
 use rusqlite::{params, Connection};
 use std::fs;
 use std::path::Path;
+use std::time::Instant;
 use walkdir::{DirEntry, WalkDir};
 use serde::{Deserialize,Serialize};
 
@@ -62,26 +63,32 @@ fn main() {
         println!("Considering hidden folders/files as well");
     }
 
-    if let Some(values) = app.values_of("include") {
-        included_dirs = values.map(|s| s.to_string()).collect::<Vec<String>>();
-        println!("Default configuration selected with: ");
-    }
-    println!("{} directories", included_dirs.join(", "));
-
     if app.is_present("setup_mode") {
         setup_mode = match app.value_of("setup_mode").unwrap().to_lowercase().as_str() {
             "default" => SetupKind::Default,
             "minimal" => SetupKind::Minimal,
             "standard" => SetupKind::Standard,
             "maximal" => SetupKind::Maximal,
-            _ => panic!("Setup mode type is invalid"),
+            _ => panic!("/*************************************************************/\n\
+                        Setup mode type is invalid\n\
+                        /*************************************************************/"),
         }
-    };
+    }
+
     println!("Setup mode: {}", app.value_of("setup_mode").unwrap());
 
+    if let Some(values) = app.values_of("include") {
+        included_dirs = values.map(|s| s.to_string()).collect::<Vec<String>>();
+        println!("Default configuration selected with: ");
+    }
+    println!("{} directories", included_dirs.join(", "));
+
+    if setup_mode == SetupKind::Default && included_dirs.len() <= 0 {
+        panic_message("At least 1 directory must be selected for default setup mode!");
+    }
 
 
-    let config = Config {
+        let config = Config {
         setup_config: SetupConfig {
             setup_mode: setup_mode.clone(),
             add_hidden_flag,
@@ -91,14 +98,21 @@ fn main() {
 
     let toml_string = match toml::to_string(&config){
         Ok(t_string) => t_string,
-        Err(err_msg) => panic!("Could not convert config params to string due to: {}", err_msg)
+        Err(err_msg) => panic!("/*************************************************************/\n\
+                                      Could not convert config params to string due to: {}\n
+                                        /*************************************************************/", err_msg)
     };
 
     let _is_written = match fs::write("/etc/file_search/config.toml", toml_string){
         Ok(_) => println!("Config written to /etc/file_search/config.toml"),
-        Err(err_msg) => panic!("Could not write to config file due to: {}", err_msg)
+        Err(err_msg) => panic!("/*************************************************************/\n\
+                                      Could not write to config file due to: {}\n\
+                                      /*************************************************************/", err_msg)
     };
 
+    let now = Instant::now();
+
+    delete_lib_dir();
     create_lib_dir();
     create_dbs();
 
@@ -106,6 +120,7 @@ fn main() {
 
 
     create_index_on_tables();
+    println!("{}", now.elapsed().as_secs());
     println!("Database setup is complete!");
 }
 
@@ -147,7 +162,9 @@ fn create_dbs_util(start: char, end: char) {
             let file_result = fs::File::create(&path);
             match file_result {
                 Ok(_) => println!("Database {} successfully created!", &path),
-                Err(err_msg) => panic!("Database could not be created due to: {}", err_msg),
+                Err(err_msg) => panic!("/*************************************************************/\n\
+                                            Database could not be created due to: {}\n\
+                                            /*************************************************************/", err_msg),
             }
             let connection = Connection::open(&path).unwrap();
             connection
@@ -261,7 +278,7 @@ fn populate_db(setup_mode: SetupKind, mut include_dirs: Vec<String>, add_hidden_
         }
     }
 
-    println!("{} files inserted!", count);
+    println!("{} file(s) inserted!", count);
 }
 
 fn create_lib_dir() {
@@ -269,9 +286,31 @@ fn create_lib_dir() {
     if !Path::new(dir_path).exists() {
         match fs::create_dir(dir_path) {
             Ok(_) => println!("Directory {} successfully created!", dir_path),
-            Err(err_msg) => panic!("Directory could not be created due to: {}", err_msg),
+            Err(err_msg) => panic!("/*************************************************************/\n\
+                                        Directory could not be created due to: {}\n\
+                                        /*************************************************************/", err_msg),
         }
     } else {
         println!("Directory {} already exists!", dir_path);
+    }
+}
+
+fn panic_message(message: &str){
+    println!("/*************************************************************/");
+    println!("{}", message);
+    panic!("/*************************************************************/");
+}
+
+fn delete_lib_dir() {
+    let dir_path = "/var/lib/file_search";
+    if Path::new(dir_path).exists() {
+        match fs::remove_dir_all(dir_path) {
+            Ok(_) => println!("Directory {} successfully deleted!", dir_path),
+            Err(err_msg) => panic!("/*************************************************************/\n\
+                                        Directory could not be deleted due to: {}\n\
+                                        /*************************************************************/", err_msg),
+        }
+    } else {
+        println!("Directory {} does not exist!", dir_path);
     }
 }

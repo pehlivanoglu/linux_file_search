@@ -18,3 +18,6 @@ db files at /var/lib/file_search/
 ## how to daemonize
 put */2 * * * * /home/pehlivanoglu/CS350/project/linux_file_search/target/release/update
 to crontab -e
+
+##
+add notify mechanism

@@ -2,6 +2,7 @@ use rusqlite::{params, Connection};
 use std::fs;
 use std::fs::File;
 use std::path::Path;
+use std::time::Instant;
 use walkdir::{DirEntry, WalkDir};
 use serde::{Deserialize,Serialize};
 use daemonize::Daemonize;
@@ -28,30 +29,36 @@ enum SetupKind {
 
 //run with superuser permissions
 fn main() {
+    //
+    // let stdout: File = File::create("/tmp/file_search_daemon.out").unwrap();
+    // let stderr: File = File::create("/tmp/file_search_daemon.err").unwrap();
+    //
+    // let daemonize: Daemonize<()> = Daemonize::new()
+    //     .stdout(stdout)
+    //     .stderr(stderr)
+    //     .pid_file("/tmp/file_search_daemon.pid")
+    //     .chown_pid_file(true);
+    //
+    // match daemonize.start() {
+    //     Ok(_) => println!("Daemon started successfully."),
+    //     Err(e) => eprintln!("Error starting daemon: {}", e),
+    // }
 
-    let stdout: File = File::create("/tmp/file_search_daemon.out").unwrap();
-    let stderr: File = File::create("/tmp/file_search_daemon.err").unwrap();
-
-    let daemonize: Daemonize<()> = Daemonize::new()
-        .stdout(stdout)
-        .stderr(stderr)
-        .pid_file("/tmp/file_search_daemon.pid")
-        .chown_pid_file(true);
-
-    match daemonize.start() {
-        Ok(_) => println!("Daemon started successfully."),
-        Err(e) => eprintln!("Error starting daemon: {}", e),
-    }
+    let now = Instant::now();
 
 
     let config_content: String = match fs::read_to_string("/etc/file_search/config.toml"){
         Ok(conf_cont) => conf_cont,
-        Err(err_msg) => panic!("Could not read config.tom file due to: {}",err_msg)
+        Err(err_msg) => panic!("/*************************************************************/\n\
+                                      Could not read config.tom file due to: {}\n\
+                                      /*************************************************************/",err_msg)
     };
 
     let config: Config = match toml::from_str(&config_content) {
         Ok(conf) => conf,
-        Err(err_msg) => panic!("Could not translate configuration params due to: {}",err_msg)
+        Err(err_msg) => panic!("/*************************************************************/\n\
+                                    Could not translate configuration params due to: {}\n\
+                                    /*************************************************************/",err_msg)
     };
 
     // println!("Is hidden? : {:?}", config.setup_config.add_hidden_flag);
@@ -69,7 +76,8 @@ fn main() {
     populate_db(setup_mode, include_dirs, add_hidden_flag);
 
     create_index_on_tables();
-    println!("Database setup is complete!");
+    println!("{}", now.elapsed().as_secs());
+    println!("Database update is complete!");
 }
 
 fn create_index_on_tables() {
@@ -110,7 +118,9 @@ fn create_dbs_util(start: char, end: char) {
             let file_result = fs::File::create(&path);
             match file_result {
                 Ok(_) => println!("Database {} successfully created!", &path),
-                Err(err_msg) => panic!("Database could not be created due to: {}", err_msg),
+                Err(err_msg) => panic!("/*************************************************************/\n\
+                                            Database could not be created due to: {}\n\
+                                            /*************************************************************/", err_msg),
             }
             let connection = Connection::open(&path).unwrap();
             connection
@@ -232,7 +242,9 @@ fn create_lib_dir() {
     if !Path::new(dir_path).exists() {
         match fs::create_dir(dir_path) {
             Ok(_) => println!("Directory {} successfully created!", dir_path),
-            Err(err_msg) => panic!("Directory could not be created due to: {}", err_msg),
+            Err(err_msg) => panic!("/*************************************************************/\n\
+                                        Directory could not be created due to: {}\n\
+                                        /*************************************************************/", err_msg),
         }
     } else {
         println!("Directory {} already exists!", dir_path);
@@ -244,7 +256,9 @@ fn delete_lib_dir() {
     if Path::new(dir_path).exists() {
         match fs::remove_dir_all(dir_path) {
             Ok(_) => println!("Directory {} successfully deleted!", dir_path),
-            Err(err_msg) => panic!("Directory could not be deleted due to: {}", err_msg),
+            Err(err_msg) => panic!("/*************************************************************/\n\
+                                        Directory could not be deleted due to: {}\n\
+                                        /*************************************************************/", err_msg),
         }
     } else {
         println!("Directory {} does not exist!", dir_path);

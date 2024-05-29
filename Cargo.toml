@@ -8,7 +8,6 @@ edition = "2021"
 #name = "test"
 #path = "src/test.rs"
 
-
 [[bin]]
 name = "search"
 path = "src/search.rs"
@@ -23,8 +22,13 @@ path = "src/setup.rs"
 name = "update"
 path = "src/update.rs"
 
-[lib]
-name = "Utils"
-path = "src/Utils.rs"
-
 [dependencies]
+clap = "3.0"
+daemonize = "0.5.0"
+rusqlite = "0.31.0"
+serde = { version = "1.0.203", features = ["derive"] }
+walkdir = "2.5.0"
+toml = "0.8.13"
+regex = "1.10.4"
+dialoguer = "0.11.0"
+
