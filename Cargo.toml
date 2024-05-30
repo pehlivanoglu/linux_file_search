@@ -3,24 +3,21 @@ name = "file_search"
 version = "0.1.0"
 edition = "2021"
 
-
-#[[bin]]
-#name = "test"
-#path = "src/test.rs"
-
-[[bin]]
-name = "search"
-path = "src/search.rs"
-
+[lib]
+name = "file_search_lib"
+path = "src/lib.rs"
 
 [[bin]]
 name = "setup"
 path = "src/setup.rs"
 
-
 [[bin]]
 name = "update"
 path = "src/update.rs"
+
+[[bin]]
+name = "search"
+path = "src/search.rs"
 
 [dependencies]
 clap = "3.0"
@@ -31,4 +28,3 @@ walkdir = "2.5.0"
 toml = "0.8.13"
 regex = "1.10.4"
 dialoguer = "0.11.0"
-

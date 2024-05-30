@@ -20,4 +20,4 @@ put */2 * * * * /home/pehlivanoglu/CS350/project/linux_file_search/target/releas
 to crontab -e
 
 ##
-add notify mechanism
+create an install file or make it apt
