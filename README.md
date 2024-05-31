@@ -55,9 +55,16 @@ Then, type ``` sudo chmod +x /usr/local/bin/search```
 
 
 ### 3. Daemonize and Automatize Database Updating (Crucial)
+Cron jobs runs the update program every 10 minutes:
+```*/10 * * * * /path/to/linux_file_search/target/release/update```\
+*/10: This means the job will run every 10 minutes. The * means "every," and the /2 means "every 2 minutes."
+*: The remaining asterisks represent the hour, day of the month, month, and day of the week, respectively. The * in each position means "every" unit of time for that position.
+Therefore, */10 * * * * translates to "run this job every 10 minutes."
 1. Open terminal, type:
    ```sudo crontab -e```
-2. Paste ```*/2 * * * * /path/to/linux_file_search/target/release/update``` to end of the file.
+2. Paste ```*/{x} * * * * /path/to/linux_file_search/target/release/update``` to end of the file.
+> **_IMPORTANT:_** Replace {x} with your own choice, or you can use different methods daemonize. But if you do, modify src/update.rs according to your needs.
+
 
 ### 4. Usage
 > **_IMPORTANT:_**  
