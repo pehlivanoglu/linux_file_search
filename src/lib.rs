@@ -18,7 +18,7 @@ pub struct SetupConfig {
 
 #[derive(PartialEq, Debug, Deserialize, Serialize, Clone)]
 pub enum SetupKind {
-    Default,
+    Custom,
     Minimal,
     Standard,
     Maximal,
@@ -63,7 +63,7 @@ pub fn populate_db(setup_mode: SetupKind, mut include_dirs: Vec<String>, add_hid
         SetupKind::Minimal => minimal_dirs.into_iter().map(String::from).collect(),
         SetupKind::Standard => standard_dirs.into_iter().map(String::from).collect(),
         SetupKind::Maximal => excluded_maximal_dirs.into_iter().map(String::from).collect(),
-        SetupKind::Default => include_dirs,
+        SetupKind::Custom => include_dirs,
     };
 
     let directories: Box<dyn Iterator<Item = DirEntry>> = if setup_mode == SetupKind::Maximal {

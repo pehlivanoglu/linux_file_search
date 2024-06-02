@@ -24,7 +24,7 @@ Make sure Cargo and Rust is installed. Then,
 ```--setup_mode standard```
 3. Maximal: Includes files from every directory except (excludes): /proc, /run, /lost+found, /tmp, /dev \
 ```--setup_mode maximal```
-4. Default: Includes files from directories listed with ``` --include ``` parameter. Example usage: ```--setup_mode default --include /home/user/Desktop```
+4. Custom: Includes files from directories listed with ``` --include ``` parameter. Example usage: ```--setup_mode custom --include /home/user/Desktop```
 
 
 ##### Include Option:
@@ -40,12 +40,12 @@ Usage: ```--add_hidden```
 Type ```sudo ./target/release/setup --setup_mode <choose setup mode from installing options section> --include <desired dirs to add to database>```.\
 If you want to add hidden directories and hidden files, also add ``` --add_hidden ``` flag.
 
-#### Or, Install without Setup Mode (Minimal setup mode)
+#### Or, Install without Setup Mode (Minimal setup mode as default)
 Type ```sudo ./target/release/setup```.\
 If you want to add hidden directories and hidden files, also add ``` --add_hidden ``` flag.
 
 #### Example Installation
-```sudo ./target/release/setup --setup_mode default --include /home/user/Downloads /var /home/user/Desktop```\
+```sudo ./target/release/setup --setup_mode custom --include /home/user/Downloads /var /home/user/Desktop```\
 or \
 ```sudo ./target/release/setup --setup_mode standard --add_hidden```
 #### Install Search Binary
@@ -95,7 +95,6 @@ If the program finds multiple test.txt files, it lists the all files named test.
 1. Daemon files at /tmp
 2. Config file at /etc/file_search/
 3. Database files at /var/lib/file_search/
-
 
 
 ## Notes

@@ -40,7 +40,7 @@ fn main() {
 
     if let Some(mode) = app.value_of("setup_mode") {
         setup_mode = match mode.to_lowercase().as_str() {
-            "default" => SetupKind::Default,
+            "custom" => SetupKind::Custom,
             "minimal" => SetupKind::Minimal,
             "standard" => SetupKind::Standard,
             "maximal" => SetupKind::Maximal,
@@ -55,11 +55,11 @@ fn main() {
 
     if let Some(values) = app.values_of("include") {
         included_dirs = values.map(|s| s.to_string()).collect();
-        println!("Default configuration selected with: {}", included_dirs.join(", "));
+        println!("Custom configuration selected with: {}", included_dirs.join(", "));
     }
 
-    if setup_mode == SetupKind::Default && included_dirs.is_empty() {
-        panic_message("At least 1 directory must be selected for default setup mode!");
+    if setup_mode == SetupKind::Custom && included_dirs.is_empty() {
+        panic_message("At least 1 directory must be selected for custom setup mode!");
     }
 
     let config = Config {
