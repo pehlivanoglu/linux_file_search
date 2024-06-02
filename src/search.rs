@@ -3,6 +3,7 @@ use regex::Regex;
 use rusqlite::{params, Connection};
 use std::process::Command;
 use std::str;
+use std::time::Instant;
 use clap::{App, Arg};
 
 fn main() {
@@ -80,7 +81,6 @@ fn main() {
 
     add_files(dirs_to_update.clone());
 }
-
 fn add_files(dirs: Vec<String>) {
 
     for dir in dirs.clone() {
@@ -150,6 +150,9 @@ fn search_w_find(filename: &str) -> Vec<String> {
 }
 
 fn search(filename: &str) -> Vec<String> {
+    let start = Instant::now();
+
+
     let connection: Connection = open_sql_connection(filename);
 
     let sql_query: &str = "SELECT path, filename FROM files WHERE filename = ?1";
@@ -183,6 +186,10 @@ fn search(filename: &str) -> Vec<String> {
         let path: String = row.get(0).unwrap();
         files.push(path.clone());
     }
+
+    let duration = start.elapsed();
+    println!("TIME ELAPSED: {:?}", duration);
+
     return files;
 }
 
